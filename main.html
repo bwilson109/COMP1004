@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Password Manager</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f4f4f4;
+    }
+    h1 {
+      text-align: center;
+    }
+    .container {
+      width: 400px;
+      margin: 0 auto;
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .password-list {
+      list-style: none;
+      padding: 0;
+    }
+    .password-item {
+      background-color: #f9f9f9;
+      padding: 10px;
+      margin-bottom: 5px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .password-item span {
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Password Manager</h1>
+
+  <div class="container">
+    <input type="text" id="site" placeholder="Site/Service Name" />
+    <input type="password" id="password" placeholder="Password" />
+    <button onclick="savePassword()">Save Password</button>
+
+    <h3>Your Saved Passwords</h3>
+    <ul class="password-list" id="password-list"></ul>
+  </div>
+
+  <script>
+    // Retrieve saved passwords from localStorage (if any)
+    function getSavedPasswords() {
+      let savedPasswords = localStorage.getItem('passwords');
+      return savedPasswords ? JSON.parse(savedPasswords) : [];
+    }
+
+    // Save password to localStorage
+    function savePassword() {
+      const site = document.getElementById('site').value;
+      const password = document.getElementById('password').value;
+
+      if (site && password) {
+        const savedPasswords = getSavedPasswords();
+
+        // Add new password
+        savedPasswords.push({ site, password });
+
+        // Save updated passwords to localStorage
+        localStorage.setItem('passwords', JSON.stringify(savedPasswords));
+
+        // Clear input fields
+        document.getElementById('site').value = '';
+        document.getElementById('password').value = '';
+
+        // Update the password list
+        updatePasswordList();
+      } else {
+        alert('Please provide both site and password.');
+      }
+    }
+
+    // Update the displayed list of passwords
+    function updatePasswordList() {
+      const passwordListElement = document.getElementById('password-list');
+      const savedPasswords = getSavedPasswords();
+
+      passwordListElement.innerHTML = '';
+      
+      savedPasswords.forEach((entry, index) => {
+        const listItem = document.createElement('li');
+        listItem.classList.add('password-item');
+        
+        const siteSpan = document.createElement('span');
+        siteSpan.textContent = `${entry.site}: ${entry.password}`;
+        
+        // Optionally, add a delete button to remove password
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete';
+        deleteButton.onclick = () => deletePassword(index);
+        
+        listItem.appendChild(siteSpan);
+        listItem.appendChild(deleteButton);
+        
+        passwordListElement.appendChild(listItem);
+      });
+    }
+
+    // Delete a saved password
+    function deletePassword(index) {
+      const savedPasswords = getSavedPasswords();
+      savedPasswords.splice(index, 1);  // Remove password at index
+      localStorage.setItem('passwords', JSON.stringify(savedPasswords)); // Save updated list
+      updatePasswordList(); // Refresh the displayed list
+    }
+
+    // Initialize the password list on page load
+    updatePasswordList();
+  </script>
+
+</body>
+</html>
